@@ -1,20 +1,19 @@
 <template>
   <a-layout>
     <a-layout-content style="padding: 0 50px; width: 1200px; margin: 0 auto">
-      <a-layout style="padding: 24px 0; background: #fff">
+      <a-layout style="padding: 24px 0; ">
         <a-layout-sider
           width="200"
           style="background: #fff"
           breakpoint="lg"
           collapsed-width="0"
-          @collapse="onCollapse"
           @breakpoint="onBreakpoint"
         >
           <a-menu
             mode="inline"
             v-model:selectedKeys="selectedKeys2"
             v-model:openKeys="openKeys"
-            style="height: 100%"
+            style="height: 100%;"
           >
             <a-menu-item key="0">
               <video-camera-outlined />
@@ -62,7 +61,7 @@
           </a-menu>
         </a-layout-sider>
         <a-layout-content
-          :style="{ padding: '0 24px', minHeight: '280px', width: 'auto' }"
+          :style="{ padding: '0 24px', minHeight: '750px',background:'#fff', boxShadow:'0 1px 6px #ccc', marginLeft:'200px', width: 'auto' }"
         >
           <!-- 菜单 -->
           <div class="menu">
@@ -89,16 +88,27 @@
           <!-- 标题 -->
           <div class="title"><h2>标题</h2></div>
           <!-- 标题end -->
+       
+           <div class="mavonEditor">
+          <div class="content">
+             
+                 <div class="hljs" ref="hlDiv" v-html="htmlContent"></div>
+	</div>
+           </div>
 
-          Content Content Content Content Content Content Content Content
         </a-layout-content>
       </a-layout>
     </a-layout-content>
   </a-layout>
 </template>
 <script lang="ts">
+import marked from 'marked'
+// highlight.js  代码高亮指令
+import hljs from 'highlight.js'
+// 代码高亮风格，选择更多风格需导入 node_modules/hightlight.js/styles/ 目录下其它css文件
+import 'highlight.js/styles/tomorrow-night.css'
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons-vue";
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, onMounted, } from "vue";
 import { MenuOutlined } from "@ant-design/icons-vue";
 export default defineComponent({
   components: {
@@ -110,10 +120,32 @@ export default defineComponent({
     const onBreakpoint = (broken: boolean) => {
       console.log(broken);
     };
+    onMounted(()=>{
+       marked.setOptions({
+          renderer: new marked.Renderer(),
+          highlight: function(code) {
+            return hljs.highlightAuto(code).value;
+          },
+          pedantic: false,
+          gfm: true,
+          breaks: false,
+          sanitize: false,
+          smartLists: true,
+          smartypants: false,
+          xhtml: false
+        }
+      );
+    })
+    
+    const htmlContent = ref('')
+    htmlContent.value = marked('- ``` javascript console.log(1) ```')
+   
+
     return {
       selectedKeys2: ref<string[]>(["1"]),
       openKeys: ref<string[]>(["sub1"]),
       onBreakpoint,
+      htmlContent
     };
   },
 });
@@ -163,11 +195,23 @@ export default defineComponent({
 .title h2 {
   font-weight: 600;
   font-size: 20px;
+  margin: 0;
 }
 .ant-menu-submenu {
   text-align: left;
 }
 .ant-menu-item {
   text-align: left;
+}
+.ant-layout-sider{
+  position: fixed;
+  height: 100%;
+}
+.ant-menu-light{
+  background-color: #F0F2F5;
+   border: 1px solid #E6E7E8;
+}
+.ant-menu-light:hover{
+  border:1px solid #FFFFFF;
 }
 </style>

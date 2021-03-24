@@ -1,5 +1,6 @@
 <template>
   <div class="user-index">
+     <mavonEditor v-model="htmlContent"/>
     <a-row class="card">
       <a-col :md="6" :sm="12" :xs="24">
         <a
@@ -19,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import {
   SettingOutlined,
   UnlockOutlined,
@@ -33,6 +34,10 @@ export default defineComponent({
     UnlockOutlined,
     PlusOutlined,
   },
+  setup(){
+    const htmlContent = ref('##### 简要描述')
+    return {htmlContent}
+  }
 });
 </script>
 
