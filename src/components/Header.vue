@@ -1,31 +1,33 @@
 <template>
   <div class="cantainer">
-     <a-row class="header-top">
-      <a-col :md="12" :xs="24" class="header-logo"  >
-        <span><img src="../assets/Markdown.png" width="48"></span>
+    <a-row class="header-top">
+      <a-col :md="12" :xs="24" class="header-logo">
+        <span><img src="../assets/Markdown.png" width="48" /></span>
         <span class="text">on line MD</span>
       </a-col>
       <a-col :md="12" :xs="24" class="header-login" offset="-2">
         <ul>
-           <li><a @click="countDown">联系</a></li>
-          <li> <router-link tag="a" to="/">登录</router-link> <router-link tag="a" to="/">/注册</router-link></li>
+          <li><a @click="countDown">联系</a></li>
+          <li>
+            <router-link tag="a" to="/">登录</router-link>
+            <router-link tag="a" to="/">/注册</router-link>
+          </li>
         </ul>
       </a-col>
-     </a-row>
+    </a-row>
   </div>
 </template>
 
 <script lang="ts">
-import { Modal } from 'ant-design-vue';
-import { ref, defineComponent } from "vue";
+import { Modal } from "ant-design-vue";
+import { defineComponent } from "vue";
 export default defineComponent({
-   name:'header',
+  name: "header",
   setup() {
     const countDown = () => {
       let secondsToGo = 10;
       const modal = Modal.success({
-        title: '对on line MD的任何疑问、建议都可以反馈到850171861@qq.com',
-      
+        title: "对on line MD的任何疑问、建议都可以反馈到850171861@qq.com",
       });
       const interval = setInterval(() => {
         secondsToGo -= 1;
@@ -41,43 +43,39 @@ export default defineComponent({
     return {
       countDown,
     };
-   }
-   
-})
+  },
+});
 </script>
 
-<style scope>
-.header-top{
-  background: #111111;
-  height: 100px;
-}
-.header-top .header-logo{
-  line-height: 100px;
-  text-align: left;
-  padding-left: 100px;
-}
-.header-top .header-logo .text{
-   color: #fff;
-   font-size: 24px;
-   font-weight: 600;
-   margin-left: 10px;
-}
-.header-top .header-login{
-  padding-right: 100px;
-  height: 100px;
-  line-height: 100px;
-}
-.header-top .header-login ul{
-  display: flex;
-  flex-direction: row-reverse;
-  list-style: none;
-}
-.header-top .header-login ul li{
-  list-style: none;
-  width: 86px;
-}
-.header-top .header-login ul li a{
-  color: #fff;
-  font-size: 18px;
-}
+<style lang="sass" scope>
+.header-top
+  background: #111111
+  height: 100px
+  .header-logo
+    line-height: 100px
+    text-align: left
+    padding-left: 100px
+    .text
+      color: #fff
+      font-size: 24px
+      font-weight: 600
+      margin-left: 10px
+
+.header-top .header-login
+  padding-right: 100px
+  height: 100px
+  line-height: 100px
+
+  & ul
+    display: flex
+    flex-direction: row-reverse
+    list-style: none
+
+  & ul li
+    list-style: none
+    width: 86px
+
+  & ul li a
+    color: #fff
+    font-size: 18px
 </style>
