@@ -72,13 +72,16 @@
               <template #overlay>
                 <a-menu>
                   <a-menu-item>
-                    <a href="javascript:;">1st menu item</a>
+                    <a href="javascript:;">返回</a>
                   </a-menu-item>
                   <a-menu-item>
-                    <a href="javascript:;">2nd menu item</a>
+                    <a href="javascript:;">新建页面</a>
                   </a-menu-item>
                   <a-menu-item>
-                    <a href="javascript:;">3rd menu item</a>
+                    <a href="javascript:;">编辑当前页面</a>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <a href="javascript:;">删除当前页面</a>
                   </a-menu-item>
                 </a-menu>
               </template>
@@ -89,11 +92,8 @@
           <div class="title"><h2>标题</h2></div>
           <!-- 标题end -->
        
-           <div class="mavonEditor">
-          <div class="content">
-             
-                 <div class="hljs" ref="hlDiv" v-html="htmlContent"></div>
-	</div>
+           <div class="content">
+            内容
            </div>
 
         </a-layout-content>
@@ -102,50 +102,23 @@
   </a-layout>
 </template>
 <script lang="ts">
-import marked from 'marked'
-// highlight.js  代码高亮指令
-import hljs from 'highlight.js'
-// 代码高亮风格，选择更多风格需导入 node_modules/hightlight.js/styles/ 目录下其它css文件
-import 'highlight.js/styles/tomorrow-night.css'
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons-vue";
-import { defineComponent, ref, onMounted, } from "vue";
+import { defineComponent, ref } from "vue";
 import { MenuOutlined } from "@ant-design/icons-vue";
 export default defineComponent({
+  name:"doucmentIndex",
   components: {
     MenuOutlined,
     FileOutlined,
     FolderOpenOutlined,
   },
   setup() {
-    const onBreakpoint = (broken: boolean) => {
-      console.log(broken);
-    };
-    onMounted(()=>{
-       marked.setOptions({
-          renderer: new marked.Renderer(),
-          highlight: function(code) {
-            return hljs.highlightAuto(code).value;
-          },
-          pedantic: false,
-          gfm: true,
-          breaks: false,
-          sanitize: false,
-          smartLists: true,
-          smartypants: false,
-          xhtml: false
-        }
-      );
-    })
-    
-    const htmlContent = ref('')
-    htmlContent.value = marked('- ``` javascript console.log(1) ```')
    
 
     return {
       selectedKeys2: ref<string[]>(["1"]),
       openKeys: ref<string[]>(["sub1"]),
-      onBreakpoint,
-      htmlContent
+
     };
   },
 });
@@ -214,4 +187,5 @@ export default defineComponent({
 .ant-menu-light:hover{
   border:1px solid #FFFFFF;
 }
+
 </style>
