@@ -1,53 +1,191 @@
 <template>
   <div class="create">
     <div class="mark-down-top">
-       <a-button type="primary" @click="a">API接口模板</a-button>
-   </div>
-    <markdown />
+      <div class="left">
+        <label class="title">标题:</label>
+        <a-input v-model:value="title" class="titleInput" />
+        <label class="cate">目录:</label>
+        <a-select
+          v-model:value="value1"
+          style="width: 200px"
+          @focus="focus"
+          ref="select"
+          @change="handleChange"
+        >
+          <a-select-option value="jack">Jack</a-select-option>
+          <a-select-option value="lucy">Lucy</a-select-option>
+          <a-select-option value="Yiminghe">yiminghe</a-select-option>
+        </a-select>
+      </div>
+      <div class="right">
+        <a-button type="primary">保存</a-button>
+        <a-button>返回</a-button>
+      </div>
+    </div>
+    <div class="mark-down-template">
+      <a-button @click="apiTemplate">API接口模板</a-button>
+      <a-button @click="dataTemplate">数据表模板</a-button>
+    </div>
+    <markdown :context="context" />
   </div>
 </template>
 
 <script lang="ts">
-import markdown from '@/components/MarkDonw.vue'
-import {  defineComponent,provide } from 'vue'
+import markdown from "@/components/MarkDonw.vue";
+import { defineComponent, ref } from "vue";
+
 export default defineComponent({
-  name:"doucmentCreate",
-  components:{
-    markdown
+  name: "doucmentCreate",
+  components: {
+    markdown,
   },
-  setup(){
-     const a = () =>{
-      provide("message", "我是父组件向子组件传递的值"); 
+  setup() {
+    const context = ref("");
+    const apiTemplate = () => {
+      context.value =
+        context.value +
+        "\n" +
+        "##### 简要描述" +
+        "\n" +
+        "- 用户注册接口" +
+        "\n" +
+        "##### 请求URL" +
+        "\n" +
+        "- ` /api/user/register `" +
+        "\n" +
+        "##### 请求方式" +
+        "\n" +
+        "- POST " +
+        "\n" +
+        "- ##### 参数 " +
+        "\n" +
+        "|参数名|必选|类型|说明|" +
+        "\n" +
+        "|:----    |:---|:----- |-----   |" +
+        "\n" +
+        "|username |是  |string |用户名   |" +
+        "\n" +
+        "|password |是  |string | 密码    |" +
+        "\n" +
+        "|name     |否  |string | 昵称    |;" +
+        "\n" +
+        "##### 返回示例 " +
+        "\n" +
+        ` 
+        {
+          "error_code": 0
+          "msg":0
+        }
+              ` +
+        "\n" +
+        "|参数名|类型|说明|" +
+        "\n" +
+        "|:-----  |:-----|-----        " +
+        "\n" +
+        "|groupid |int   |用户组id，1：超级管理员；2：普通用户  |" +
+        "\n" +
+        "##### 备注 " +
+        "\n" +
+        "- 更多返回错误代码请看首页的错误代码描述";
+    };
+    const dataTemplate = () => {
+      context.value =
+        context.value +
+        "\n" +
+        "-  用户表，储存用户信息" +
+        "\n" +
+        "\n" +
+        "|参数名|必选|类型|说明|" +
+        "\n" +
+        "|:----|:---|:-----|-----|" +
+        "\n" +
+        "|uid|int(10)|否|||" +
+        "\n" +
+        "|username |varchar(20) |否 |    |   用户名  |" +
+        "\n" +
+        "|password |varchar(50) |否   |    |   密码    |" +
+        "\n" +
+        "|name     |varchar(15) |是   |    |    昵称     |" +
+        "\n" +
+        "|reg_time |int(11)     |否   | 0  |   注册时间  |" +
+        "\n" +
+        "- 备注：无";
+    };
+    const title = ref<string>("");
+    const handleChange = (value: string) => {
+      console.log(`selected ${value}`);
+    };
 
-     }
-    
-
-    return{
-      a
-    }
-  }
-})
+    return {
+      context,
+      apiTemplate,
+      dataTemplate,
+      title,
+      handleChange,
+    };
+  },
+});
 </script>
 
-<style scope>
-.create{
+<style lang="scss" scope>
+.mark-down-top {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  .left {
+    display: flex;
+    color: #606266;
+    .title,
+    .cate {
+      width: 60px;
+      height: 32px;
+      line-height: 32px;
+      font-size: 14px;
+    }
+    .titleInput {
+      width: 200px;
+      height: 32px;
+    }
+  }
+  .right {
+    .ant-btn {
+      height: 32px;
+      margin-right: 10px;
+    }
+  }
+}
+.mark-down-template {
+  display: flex;
+  margin: 20px 0;
+  .ant-btn {
+    color: #606266;
+    width: 120px;
+    height: 36px;
+    font-size: 14px;
+    padding: 10px;
+    line-height: 12px;
+    margin-right: 10px;
+  }
+}
+.create {
   width: 90%;
   margin: 0 auto;
 }
-.vditor-preview__action{
+.vditor-preview__action {
   display: none;
 }
-.vditor-sv,.vditor-preview {
+.vditor-sv,
+.vditor-preview {
   text-align: left;
   background-color: #fff;
 }
 
-tr{
+tr {
   min-width: 100px;
 }
-th{
+th {
   min-width: 100px;
   color: #fff;
-  background:#4CA3FD;
+  background: #4ca3fd;
 }
 </style>
