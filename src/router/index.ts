@@ -6,6 +6,12 @@ const documentCreate = () => import('@/views/document/Create.vue')
 const documentUpdate = () => import('@/views/document/Update.vue')
 const createProject = () => import('@/views/createProject.vue')
 const settingProject = () => import('@/views/settingProject.vue')
+const userRegister = () => import('@/views/user/Register.vue')
+const Login = () => import('@/views/user/Login.vue')
+const ResetPassword = () => import('@/views/user/ResetPassword.vue')
+
+
+
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
@@ -41,9 +47,23 @@ const routes: Array<RouteRecordRaw> = [
     path: '/settingProject',
     name: 'settingProject',
     component: settingProject
+  },
+  {
+    path: '/userRegister',
+    name: 'userRegister',
+    component: userRegister
+  },
+  {
+    path: '/Login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/ResetPassword',
+    name: 'ResetPassword',
+    component: ResetPassword
   }
 ]
-
 const router = createRouter({
   history: createWebHashHistory(),
   routes
