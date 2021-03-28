@@ -9,8 +9,8 @@
         <ul>
           <li><a @click="countDown">联系</a></li>
           <li>
-            <router-link tag="a" to="/">登录</router-link>
-            <router-link tag="a" to="/">/注册</router-link>
+            <router-link tag="a" :to="{name:'Login'}">登录</router-link>
+            <router-link tag="a" :to="{name:'userRegister'}">/注册</router-link>
           </li>
         </ul>
       </a-col>

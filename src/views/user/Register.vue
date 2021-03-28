@@ -14,9 +14,10 @@
       <div class="tips">{{messageEmail}}</div>
     </a-form-item>
      <a-form-item>
-      <a-input v-model:value="formState.name" placeholder="昵称">
+      <a-input v-model:value="formState.name" @blur="name_blur"  placeholder="昵称">
         <template #prefix><IdcardOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
       </a-input>
+      <div class="tips">{{messageName}}</div>
     </a-form-item>
     <a-form-item>
       <a-input v-model:value="formState.password" type="password" placeholder="密码">
@@ -53,7 +54,9 @@ import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
 import { defineComponent, reactive, UnwrapRef,ref } from 'vue';
 interface FormState {
   user: string;
+  name:string;
   password: string;
+  ver:string
 }
 export default defineComponent({
   name:'Register',
@@ -98,6 +101,15 @@ export default defineComponent({
                   messageEmail.value = ''
                 }
             }
+  const messageName = ref('')
+  const name_blur = () => {
+    if(formState.name == ''){
+      messageName.value = '昵称不能为空'
+    }else{
+      messageName.value = ''
+    }
+  }
+    
     return {
       formState,
       handleFinish,
@@ -106,7 +118,9 @@ export default defineComponent({
       totalTime,
       countDown,
       email_blur,
-      messageEmail
+      messageEmail,
+      name_blur,
+      messageName
     };
   },
   components: {
