@@ -2,10 +2,9 @@
   <div class="register">
     <p>注册</p>
     <a-form
-      layout="inline"
-      :model="formState"
-      @finish="handleFinish"
-      @finishFailed="handleFinishFailed"
+       layout="inline"
+    :model="formState"
+    @finish="handleFinish"
     >
       <a-form-item>
         <a-input
@@ -35,12 +34,14 @@
         <a-input
           v-model:value="formState.password"
           type="password"
+          @blur="password_blur"
           placeholder="密码"
         >
           <template #prefix
             ><LockOutlined style="color: rgba(0, 0, 0, 0.25)"
           /></template>
         </a-input>
+         
         <div class="tips">{{ messagePasswrod }}</div>
       </a-form-item>
       <a-form-item class="var">
@@ -51,16 +52,17 @@
         </a-input>
         <a-button
           type="primary"
-          :class="{ disabledver: !this.canClick }"
           @click="countDown"
+          :class="{canClick:canClick}"
+          :disabled="formState.username === '' ||formState.password === '' ||formState.name === ''"
         >
-          {{ content }}
+          {{ content }} 
         </a-button>
       </a-form-item>
       <a-form-item class="submit">
         <a-button
-          type="primary"
-          html-type="submit"
+             type="primary"
+           html-type="submit"
           :disabled="
             formState.username === '' ||
             formState.password === '' ||
@@ -85,53 +87,80 @@ import {
   LockOutlined,
   VerifiedOutlined,
 } from "@ant-design/icons-vue";
-import { ValidateErrorEntity } from "ant-design-vue/es/form/interface";
+import { message } from 'ant-design-vue';
 import { defineComponent, reactive, UnwrapRef, ref } from "vue";
 import { register } from "@/api/login";
-
 interface FormState {
   username: string;
   name: string;
   password: string;
   ver: string;
 }
+import vaildateForm from '@/hooks/vaildateForm'
 export default defineComponent({
   name: "Register",
   setup() {
+      const { messageName, name_blur } = vaildateForm()
     const formState: UnwrapRef<FormState> = reactive({
       username: "",
       name: "",
       password: "",
       ver: "",
     });
-    const handleFinish = (values: FormState) => {
-      console.log(values, formState);
-    };
-    const handleFinishFailed = (errors: ValidateErrorEntity<FormState>) => {
-      console.log(errors);
-    };
+
     const messagePasswrod = ref("");
     const content = ref("获取验证码"); // 按钮里显示的内容
     const totalTime = ref(60); //记录具体倒计时时间
-    const canClick = ref(true);
+    const canClick = ref(false);
+   
+    // 注册
+  const handleFinish = () => {
+      console.log(formState.name);
+    };
+    // 获取验证码
     const countDown = () => {
-      if (formState.username == "") {
-        messageEmail.value = "邮箱不能为空";
-        return;
+      let verify = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
+      if (!verify.test(formState.username)) {
+        messageEmail.value = "邮箱格式错误";
+        return
       }
+       register({ username: formState.username, password: formState.password, name: formState.name }).then((res)=>{
+        if(res.data.code === 200){
+          message.success('验证码已发送,请注意查收')
+        }
+      });
+     timing()
+     
+    };
+    const messageEmail = ref("");
+    const email_blur = () => {
+      let verify = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
+      if (!verify.test(formState.username)) {
+        messageEmail.value = "邮箱格式错误";
+      } else {
+        messageEmail.value = "";
+      }
+    };
+    // const messageName = ref("");
+    // const name_blur = () => {
+    //   if (formState.name == "") {
+    //     messageName.value = "昵称不能为空";
+    //   } else {
+    //     messageName.value = "";
+    //   }
+    // };
+
+     const password_blur = () => {
       if (formState.name == "") {
-        messageName.value = "昵称不能为空";
-        return;
-      }
-      if (formState.password == "") {
         messagePasswrod.value = "密码不能为空";
-        return;
+      } else {
+        messagePasswrod.value = "";
       }
+    };
 
-      register({ username: "weibin", password: 123, name: "123" });
-
-      if (!canClick.value) return;
-      canClick.value = false;
+    const timing = () => {
+       if (canClick.value) return;
+      canClick.value = true;
       content.value = totalTime.value + "s后重新发送";
       let clock = window.setInterval(() => {
         totalTime.value--;
@@ -141,32 +170,13 @@ export default defineComponent({
           window.clearInterval(clock);
           content.value = "重新发送验证码";
           totalTime.value = 60;
-          canClick.value = true;
+          canClick.value = false;
         }
       }, 1000);
-    };
-    const messageEmail = ref("");
-    const email_blur = () => {
-      var verify = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
-      if (!verify.test(formState.username)) {
-        messageEmail.value = "邮箱格式错误";
-      } else {
-        messageEmail.value = "";
-      }
-    };
-    const messageName = ref("");
-    const name_blur = () => {
-      if (formState.name == "") {
-        messageName.value = "昵称不能为空";
-      } else {
-        messageName.value = "";
-      }
-    };
-
+    }
     return {
       formState,
       handleFinish,
-      handleFinishFailed,
       content,
       totalTime,
       countDown,
@@ -175,6 +185,9 @@ export default defineComponent({
       name_blur,
       messageName,
       messagePasswrod,
+      password_blur,
+      canClick,
+
     };
   },
   components: {
@@ -207,9 +220,7 @@ export default defineComponent({
 .tips {
   color: red;
 }
-.disabledver {
-  cursor: not-allowed; // 鼠标变化
-}
+
 .ant-col {
   width: 250px;
 }
@@ -234,5 +245,10 @@ export default defineComponent({
   a {
     padding: 0 10px;
   }
+}
+.canClick{
+   pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
 }
 </style>
