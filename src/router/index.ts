@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import store from '../store'
+
 const Index = () => import('@/views/Index.vue')
 const userIndex = () => import('@/views/user/Index.vue')
 const documentIndex = () => import('@/views/document/Index.vue')
@@ -21,7 +23,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/userIndex',
     name: 'userIndex',
-    component: userIndex
+    component: userIndex,
+    meta: {
+      requiresAuth: true
+    },
   },
   {
     path: '/documentIndex',
@@ -67,6 +72,20 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  const { isLogin, userInfo, token } = store.state
+  const { requiresAuth } = to.meta
+  console.log(requiresAuth)
+
+  if (isLogin) {
+    console.log(requiresAuth)
+  }
+
+
+
 })
 
 export default router

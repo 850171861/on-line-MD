@@ -1,11 +1,7 @@
 <template>
   <div class="register">
     <p>注册</p>
-    <a-form
-       layout="inline"
-    :model="formState"
-    @finish="handleFinish"
-    >
+    <a-form layout="inline" :model="formState" @finish="handleFinish">
       <a-form-item>
         <a-input
           v-model:value="formState.username"
@@ -41,11 +37,14 @@
             ><LockOutlined style="color: rgba(0, 0, 0, 0.25)"
           /></template>
         </a-input>
-         
         <div class="tips">{{ messagePasswrod }}</div>
       </a-form-item>
       <a-form-item class="var">
-        <a-input v-model:value="formState.ver" placeholder="验证码">
+        <a-input
+          v-model:value="formState.ver"
+          @blur="ver_blur"
+          placeholder="验证码"
+        >
           <template #prefix
             ><VerifiedOutlined style="color: rgba(0, 0, 0, 0.25)"
           /></template>
@@ -53,16 +52,21 @@
         <a-button
           type="primary"
           @click="countDown"
-          :class="{canClick:canClick}"
-          :disabled="formState.username === '' ||formState.password === '' ||formState.name === ''"
+          :class="{ canClick: canClick }"
+          :disabled="
+            formState.username === '' ||
+            formState.password === '' ||
+            formState.name === ''
+          "
         >
-          {{ content }} 
+          {{ content }}
         </a-button>
+        <div class="tips">{{ messageVer }}</div>
       </a-form-item>
       <a-form-item class="submit">
         <a-button
-             type="primary"
-           html-type="submit"
+          type="primary"
+          html-type="submit"
           :disabled="
             formState.username === '' ||
             formState.password === '' ||
@@ -87,93 +91,63 @@ import {
   LockOutlined,
   VerifiedOutlined,
 } from "@ant-design/icons-vue";
-import { message } from 'ant-design-vue';
-import { defineComponent, reactive, UnwrapRef, ref } from "vue";
+import { defineComponent } from "vue";
+import { message } from "ant-design-vue";
+import vaildateForm from "@/hooks/vaildateForm";
 import { register } from "@/api/login";
-interface FormState {
-  username: string;
-  name: string;
-  password: string;
-  ver: string;
-}
-import vaildateForm from '@/hooks/vaildateForm'
+import { useRouter } from "vue-router";
+
 export default defineComponent({
   name: "Register",
   setup() {
-      const { messageName, name_blur } = vaildateForm()
-    const formState: UnwrapRef<FormState> = reactive({
-      username: "",
-      name: "",
-      password: "",
-      ver: "",
-    });
+    const router = useRouter();
+    const {
+      formState,
+      messageEmail,
+      email_blur,
+      messageName,
+      name_blur,
+      messagePasswrod,
+      password_blur,
+      content,
+      totalTime,
+      canClick,
+      countDown,
+      messageVer,
+      ver_blur,
+    } = vaildateForm();
 
-    const messagePasswrod = ref("");
-    const content = ref("获取验证码"); // 按钮里显示的内容
-    const totalTime = ref(60); //记录具体倒计时时间
-    const canClick = ref(false);
-   
     // 注册
-  const handleFinish = () => {
-      console.log(formState.name);
-    };
-    // 获取验证码
-    const countDown = () => {
-      let verify = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
-      if (!verify.test(formState.username)) {
-        messageEmail.value = "邮箱格式错误";
-        return
-      }
-       register({ username: formState.username, password: formState.password, name: formState.name }).then((res)=>{
-        if(res.data.code === 200){
-          message.success('验证码已发送,请注意查收')
-        }
-      });
-     timing()
-     
-    };
-    const messageEmail = ref("");
-    const email_blur = () => {
-      let verify = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
-      if (!verify.test(formState.username)) {
-        messageEmail.value = "邮箱格式错误";
+    const handleFinish = () => {
+      if (
+        messageEmail.value === "" &&
+        messageName.value === "" &&
+        messagePasswrod.value === "" &&
+        messageVer.value === ""
+      ) {
+        register({
+          username: formState.username,
+          password: formState.password,
+          name: formState.name,
+          ver: formState.ver,
+        }).then((res) => {
+          console.log(res);
+          if (res.data.code === 200) {
+            message.success("注册成功,2秒后跳登录界面");
+            setTimeout(() => {
+              router.push({ name: "Login" });
+            }, 2000);
+          } else if (res.data.code === 500) {
+            message.error(res.data.msg);
+          } else {
+            message.error("服务器繁忙");
+          }
+        });
       } else {
-        messageEmail.value = "";
+        message.error("注册失败，请正确填写表单");
       }
+      console.log(formState);
     };
-    // const messageName = ref("");
-    // const name_blur = () => {
-    //   if (formState.name == "") {
-    //     messageName.value = "昵称不能为空";
-    //   } else {
-    //     messageName.value = "";
-    //   }
-    // };
-
-     const password_blur = () => {
-      if (formState.name == "") {
-        messagePasswrod.value = "密码不能为空";
-      } else {
-        messagePasswrod.value = "";
-      }
-    };
-
-    const timing = () => {
-       if (canClick.value) return;
-      canClick.value = true;
-      content.value = totalTime.value + "s后重新发送";
-      let clock = window.setInterval(() => {
-        totalTime.value--;
-        content.value = totalTime.value + "s后重新发送";
-        if (totalTime.value <= 0) {
-          //当倒计时小于0时清除定时器
-          window.clearInterval(clock);
-          content.value = "重新发送验证码";
-          totalTime.value = 60;
-          canClick.value = false;
-        }
-      }, 1000);
-    }
     return {
       formState,
       handleFinish,
@@ -187,7 +161,8 @@ export default defineComponent({
       messagePasswrod,
       password_blur,
       canClick,
-
+      messageVer,
+      ver_blur,
     };
   },
   components: {
@@ -246,9 +221,9 @@ export default defineComponent({
     padding: 0 10px;
   }
 }
-.canClick{
-   pointer-events: none;
-    cursor: default;
-    opacity: 0.5;
+.canClick {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.5;
 }
 </style>

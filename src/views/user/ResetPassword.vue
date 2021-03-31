@@ -1,156 +1,191 @@
 <template>
-<div class="register">
-  <p>重置密码</p>
-  <a-form
-    layout="inline"
-    :model="formState"
-    @finish="handleFinish"
-    @finishFailed="handleFinishFailed"
-  >
-    <a-form-item>
-      <a-input  v-model:value="formState.user" @blur="email_blur" placeholder="绑定邮箱">
-        <template #prefix><UserOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
-      </a-input>
-      <div class="tips">{{messageEmail}}</div>
-    </a-form-item>
-     <a-form-item class="var">
-      <a-input v-model:value="formState.ver"  placeholder="验证码">
-        <template #prefix><VerifiedOutlined style="color: rgba(0, 0, 0, 0.25)" /></template>
-      </a-input>
-       <a-button type="primary"  :class="{disabledver: !this.canClick}" @click="countDown">
- {{content}}
-</a-button>
-    </a-form-item>
-    <a-form-item class="submit">
-      <a-button
-        type="primary"
-        html-type="submit"
-        :disabled="formState.user === '' || formState.ver === ''"
-      >
-        提交
-      </a-button>
-    </a-form-item>
-  </a-form>
-  <div class="other">
-    <router-link :to="{name:'Login'}">想起密码了？去登录</router-link>
-  </div>
+  <div class="register">
+    <p>重置密码</p>
+    <a-form layout="inline" :model="formState" @finish="handleFinish">
+      <a-form-item>
+        <a-input
+          v-model:value="formState.username"
+          @blur="email_blur"
+          placeholder="绑定邮箱"
+        >
+          <template #prefix
+            ><UserOutlined style="color: rgba(0, 0, 0, 0.25)"
+          /></template>
+        </a-input>
+        <div class="tips">{{ messageEmail }}</div>
+      </a-form-item>
+      <a-form-item>
+        <a-input
+          v-model:value="formState.password"
+          type="password"
+          @blur="password_blur"
+          placeholder="密码"
+        >
+          <template #prefix
+            ><LockOutlined style="color: rgba(0, 0, 0, 0.25)"
+          /></template>
+        </a-input>
+        <div class="tips">{{ messagePasswrod }}</div>
+      </a-form-item>
+      <a-form-item class="var">
+        <a-input
+          v-model:value="formState.ver"
+          @blur="ver_blur"
+          placeholder="验证码"
+        >
+          <template #prefix
+            ><VerifiedOutlined style="color: rgba(0, 0, 0, 0.25)"
+          /></template>
+        </a-input>
+        <a-button
+          type="primary"
+          @click="countDown"
+          :class="{ canClick: canClick }"
+          :disabled="formState.username === '' || formState.password === ''"
+        >
+          {{ content }}
+        </a-button>
+        <div class="tips">{{ messageVer }}</div>
+      </a-form-item>
+      <a-form-item class="submit">
+        <a-button
+          type="primary"
+          html-type="submit"
+          :disabled="formState.user === '' || formState.ver === ''"
+        >
+          提交
+        </a-button>
+      </a-form-item>
+    </a-form>
+    <div class="other">
+      <router-link :to="{ name: 'Login' }">想起密码了？去登录</router-link>
+    </div>
   </div>
 </template>
 <script lang="ts">
-import { UserOutlined, VerifiedOutlined } from '@ant-design/icons-vue';
-import { ValidateErrorEntity } from 'ant-design-vue/es/form/interface';
-import { defineComponent, reactive, UnwrapRef,ref } from 'vue';
-interface FormState {
-  user: string;
-  ver: string;
-}
+import { UserOutlined, VerifiedOutlined } from "@ant-design/icons-vue";
+import { defineComponent, ref } from "vue";
+import vaildateForm from "@/hooks/vaildateForm";
+import { message } from "ant-design-vue";
+import { resetPwd } from "@/api/login";
+import { useRouter } from "vue-router";
 export default defineComponent({
-  name:'ResetPassword',
+  name: "ResetPassword",
   setup() {
-    const formState: UnwrapRef<FormState> = reactive({
-      user: '',
-      ver:''
-    });
-    const handleFinish = (values: FormState) => {
-      console.log(values, formState);
+    const router = useRouter();
+    const {
+      formState,
+      messageEmail,
+      email_blur,
+      messagePasswrod,
+      password_blur,
+      content,
+      totalTime,
+      countDown,
+      messageVer,
+      ver_blur,
+    } = vaildateForm();
+
+    const handleFinish = () => {
+      if (
+        messageEmail.value === "" &&
+        messagePasswrod.value === "" &&
+        messageVer.value === ""
+      ) {
+        resetPwd({
+          username: formState.username,
+          password: formState.password,
+          ver: formState.ver,
+        }).then((res) => {
+          if (res.data.code === 200) {
+            message.success("重置成功,2秒后跳登录界面");
+            setTimeout(() => {
+              router.push({ name: "Login" });
+            }, 2000);
+          } else if (res.data.code === 500) {
+            message.error(res.data.msg);
+          } else {
+            message.error("服务器繁忙");
+          }
+        });
+      } else {
+        message.error("重置失败，请正确填写表单");
+      }
     };
-    const handleFinishFailed = (errors: ValidateErrorEntity<FormState>) => {
-      console.log(errors);
-    };
- 
-   const content = ref('发送'); // 按钮里显示的内容
-   const totalTime = ref(60);//记录具体倒计时时间
-   const canClick = ref(true)
-   const  countDown = () => {
-      if (!canClick.value) return
-      canClick.value = false
-     content.value = totalTime.value + 's后重新发送' //这里解决60秒不见了的问题
-    let clock = window.setInterval(() => {
-      totalTime.value--
-      content.value = totalTime.value + 's后重新发送'
-       if (totalTime.value <= 0) {     //当倒计时小于0时清除定时器
-    window.clearInterval(clock)
-    content.value = '重新发送验证码'
-    totalTime.value = 60
-    canClick.value = true 
-    }
-    },1000)
-  }
-  const messageEmail = ref('')
-  const email_blur = () => {
-                var verify = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/;
-                if (!verify.test(formState.user)) {
-                   messageEmail.value = "邮箱格式错误"
-                }else{
-                  messageEmail.value = ''
-                }
-            }
+
     return {
       formState,
       handleFinish,
-      handleFinishFailed,
       content,
       totalTime,
       countDown,
       email_blur,
-      messageEmail
+      messageEmail,
+      messagePasswrod,
+      password_blur,
+      messageVer,
+      ver_blur,
     };
   },
   components: {
     UserOutlined,
-    VerifiedOutlined
+    VerifiedOutlined,
   },
 });
 </script>
 
 <style lang="scss" scope>
-.register{
+.register {
   width: 330px;
 
   position: absolute;
   top: 50%;
   left: 50%;
-  border: 1px solid #EBEEF5;
-  background-color: #FFF;
+  border: 1px solid #ebeef5;
+  background-color: #fff;
   color: #303133;
-  transform: translate(-50%,-50%);
+  transform: translate(-50%, -50%);
   box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
-  p{
+  p {
     font-size: 18px;
     font-weight: 600;
     padding-top: 20px;
   }
 }
-.tips{
+.tips {
   color: red;
 }
-.disabledver{
- cursor: not-allowed; // 鼠标变化
+.disabledver {
+  cursor: not-allowed; // 鼠标变化
 }
-.ant-col{
+.ant-col {
   width: 250px;
 }
-.var{
-.ant-input-affix-wrapper{
-  width: 120px;
-}
-.ant-btn{
-  width: 130px;
-  height: 31px;
-}
-}
-.submit{
-  
-  .ant-btn{
-    width: 250px;
-  margin: 20px 0;
+.var {
+  .ant-input-affix-wrapper {
+    width: 120px;
+  }
+  .ant-btn {
+    width: 130px;
+    height: 31px;
   }
 }
-.other{
+.submit {
+  .ant-btn {
+    width: 250px;
+    margin: 20px 0;
+  }
+}
+.other {
   margin: 20px 0;
   color: #1890ff;
-  a{
+  a {
     padding: 0 10px;
   }
+}
+.canClick {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.5;
 }
 </style>
