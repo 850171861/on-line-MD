@@ -36,22 +36,34 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/documentCreate',
     name: 'documentCreate',
-    component: documentCreate
+    component: documentCreate,
+    meta: {
+      requiresAuth: true
+    },
   },
   {
     path: '/documentUpdate',
     name: 'documentUpdate',
-    component: documentUpdate
+    component: documentUpdate,
+    meta: {
+      requiresAuth: true
+    },
   },
   {
     path: '/createProject',
     name: 'createProject',
-    component: createProject
+    component: createProject,
+    meta: {
+      requiresAuth: true
+    },
   },
   {
     path: '/settingProject',
     name: 'settingProject',
-    component: settingProject
+    component: settingProject,
+    meta: {
+      requiresAuth: true
+    },
   },
   {
     path: '/userRegister',
@@ -76,15 +88,18 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  const { isLogin, userInfo, token } = store.state
+  const { isLogin } = store.state
   const { requiresAuth } = to.meta
-  console.log(requiresAuth)
-
-  if (isLogin) {
-    console.log(requiresAuth)
-  }
-
-
+  // mate区别路由是否需要登录
+   if (requiresAuth) {
+     if(isLogin){
+       next()
+     }else{
+        next('/login')
+     }
+      } else {
+        next()
+      }
 
 })
 
