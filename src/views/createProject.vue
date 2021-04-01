@@ -60,12 +60,12 @@ export default defineComponent({
       createProject({
         name: name.value,
         description: description.value,
-        plugins: radio.value,
+        publics: radio.value,
         password: password.value,
         roles: ["create"],
       }).then((res) => {
         if (res.data.code === 200) {
-          message.success("登录成功");
+          message.success("创建成功");
           router.push({ name: "userIndex" });
         }
       });

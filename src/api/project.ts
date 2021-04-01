@@ -3,7 +3,7 @@ import { AxiosPromise } from 'axios'
 
 
 
-interface CreateProjectInterface {
+interface CreateAndUpdateProject {
   name: string;
   description: string;
   plugins?: boolean;
@@ -12,12 +12,20 @@ interface CreateProjectInterface {
 }
 
 interface ProjectInterface {
-  projectId?: string
+  projectId?: any
 }
 
-export const createProject = (data: CreateProjectInterface): AxiosPromise<ResponseData> => {
+export const createProject = (data: CreateAndUpdateProject): AxiosPromise<ResponseData> => {
   return axios.request({
     url: '/project/create',
+    method: 'POST',
+    data
+  })
+}
+
+export const updateProject = (data: CreateAndUpdateProject): AxiosPromise<ResponseData> => {
+  return axios.request({
+    url: '/project/update',
     method: 'POST',
     data
   })
@@ -27,7 +35,7 @@ export const project = (data: ProjectInterface): AxiosPromise<ResponseData> => {
   return axios.request({
     url: '/project/get',
     method: 'GET',
-    data
+    params:data
   })
 }
 
