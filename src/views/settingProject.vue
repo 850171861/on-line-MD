@@ -66,6 +66,45 @@
               </table>
             </div>
           </a-tab-pane>
+          <a-tab-pane class="setting" key="key3" tab="高级设置">
+            <a-button title="你可以将项目转让他人" @click="transferClick"
+              >转让</a-button
+            >
+            <a-modal
+              v-model:visible="visibleTransfer"
+              class="inputTransfer"
+              width="300px"
+              title="项目转接"
+              @ok="handleOk"
+            >
+              <a-input
+                v-model:value="name"
+                placeholder="请输入项目名称850171861"
+              />
+              <a-input v-model:value="username" placeholder="接收者用户名" />
+              <a-input
+                v-model:value="password"
+                placeholder="请输入你的登录密码"
+              />
+            </a-modal>
+            <a-button type="danger" @click="deleteClick">删除</a-button>
+            <a-modal
+              v-model:visible="deleteTransfer"
+              class="deleteTransfer"
+              width="300px"
+              title="删除项目"
+              @ok="handleOk"
+            >
+              <a-input
+                v-model:value="name"
+                placeholder="请输入项目名称850171861"
+              />
+              <a-input
+                v-model:value="password"
+                placeholder="请输入你的登录密码"
+              />
+            </a-modal>
+          </a-tab-pane>
         </a-tabs>
       </div>
     </div>
@@ -75,16 +114,18 @@
 <script lang="ts">
 import { ArrowLeftOutlined } from "@ant-design/icons-vue";
 import { defineComponent, reactive, ref } from "vue";
-
+import { project } from "@/api/project";
+import { useRoute } from "vue-router";
 export default defineComponent({
   components: {
     ArrowLeftOutlined,
   },
   setup() {
+    const router = useRoute();
     const onTabClick = (tabKey: string) => {
       console.log("tab clicked : " + tabKey);
     };
-    const value = ref<number>(1);
+    const value = ref<number>();
     const visible = ref<boolean>(false);
     const showModal = () => {
       visible.value = true;
@@ -93,12 +134,37 @@ export default defineComponent({
       console.log(e);
       visible.value = false;
     };
+    const projectId = ref(router.query.projectId);
+
+    project({ projectId: projectId }).then((res) => {
+      console.log(res);
+    });
+    const name = ref<string>("");
+    const username = ref<string>("");
+    const password = ref<string>("");
+
+    const visibleTransfer = ref<boolean>(false);
+    const transferClick = () => {
+      visibleTransfer.value = true;
+    };
+    const deleteTransfer = ref<boolean>(false);
+    const deleteClick = () => {
+      deleteTransfer.value = true;
+    };
+
     return {
       onTabClick,
       value,
       visible,
       showModal,
       handleOk,
+      visibleTransfer,
+      transferClick,
+      deleteTransfer,
+      deleteClick,
+      name,
+      username,
+      password,
     };
   },
 });
@@ -202,6 +268,18 @@ export default defineComponent({
           }
         }
       }
+      .setting {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 30px 0;
+        .ant-btn {
+          width: 120px;
+          height: 40px;
+          font-size: 16px;
+          margin-top: 30px;
+        }
+      }
     }
   }
 }
@@ -211,6 +289,16 @@ export default defineComponent({
     .ant-radio-group {
       margin-top: 20px;
     }
+  }
+}
+.inputTransfer {
+  input {
+    margin-top: 10px;
+  }
+}
+.deleteTransfer {
+  input {
+    margin-top: 10px;
   }
 }
 </style>

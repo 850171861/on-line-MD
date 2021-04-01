@@ -6,24 +6,29 @@
           <a-button><ArrowLeftOutlined /></a-button>
         </div>
         <div class="title">新建项目</div>
+        <a-alert message="Success Text" type="success" />
       </div>
 
       <div class="input">
-        <a-input v-model:value="value" placeholder="项目名称" />
-        <a-input v-model:value="value" placeholder="项目描述" />
+        <a-input v-model:value="name" placeholder="项目名称" />
+        <a-input v-model:value="description" placeholder="项目描述" />
       </div>
 
       <div class="radio">
-        <a-radio-group v-model:value="value">
-          <a-radio :style="radioStyle" :value="3">公开项目</a-radio>
-          <a-radio :style="radioStyle" :value="4"> 私密项目 </a-radio>
+        <a-radio-group v-model:value="radio">
+          <a-radio :style="radioStyle" :value="true">公开项目</a-radio>
+          <a-radio :style="radioStyle" :value="false"> 私密项目 </a-radio>
         </a-radio-group>
       </div>
       <div class="passwrod">
-        <a-input v-if="value === 4" placeholder="访问密码" />
+        <a-input
+          v-if="radio === false"
+          v-model:value="password"
+          placeholder="访问密码"
+        />
       </div>
       <div class="submit">
-        <a-button type="primary">提交</a-button>
+        <a-button type="primary" @click="submit">提交</a-button>
       </div>
     </div>
   </div>
@@ -32,21 +37,46 @@
 <script lang="ts">
 import { ArrowLeftOutlined } from "@ant-design/icons-vue";
 import { defineComponent, reactive, ref } from "vue";
+import { createProject } from "@/api/project";
+import { useRouter } from "vue-router";
+import { message } from "ant-design-vue";
+
 export default defineComponent({
   components: {
     ArrowLeftOutlined,
   },
   setup() {
-    const value = ref<number>(1);
+    const router = useRouter();
+    const name = ref<string>("");
+    const description = ref<string>("");
+    const radio = ref<boolean>(true);
+    const password = ref<string>("");
     const radioStyle = reactive({
       display: "block",
       height: "30px",
       lineHeight: "30px",
     });
-
+    const submit = () => {
+      createProject({
+        name: name.value,
+        description: description.value,
+        plugins: radio.value,
+        password: password.value,
+        roles: ["create"],
+      }).then((res) => {
+        if (res.data.code === 200) {
+          message.success("登录成功");
+          router.push({ name: "userIndex" });
+        }
+      });
+    };
     return {
-      value,
+      name,
+      description,
+      radio,
+      password,
       radioStyle,
+      submit,
     };
   },
 });

@@ -18,19 +18,22 @@
         <router-link
           :to="{ name: 'documentIndex', query: { projectId: item._id } }"
           >{{ item.name }}
-          <router-link :to="{ name: 'userIndex' }" class="setting">
+          <router-link
+            :to="{ name: 'settingProject', query: { projectId: item._id } }"
+            class="setting"
+          >
             <i title="项目设置"> <SettingOutlined /></i>
           </router-link>
 
-          <i title="这是一个私有项目" class="lock" v-if="item.publics == true"
+          <i title="这是一个私有项目" class="lock" v-if="item.publics == false"
             ><UnlockOutlined /></i
         ></router-link>
       </a-col>
 
       <a-col :md="6" :sm="12" :xs="24">
-        <a
+        <router-link :to="{ name: 'createProject' }"
           >新建项目 <i><PlusOutlined /></i
-        ></a>
+        ></router-link>
       </a-col>
     </a-row>
   </div>
@@ -55,7 +58,7 @@ export default defineComponent({
   setup() {
     const projectList = ref("");
     onMounted(() => {
-      project().then((res) => {
+      project({}).then((res) => {
         if (res.data.code === 200) {
           projectList.value = res.data.data;
         }
