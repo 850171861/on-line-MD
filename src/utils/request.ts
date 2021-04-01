@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosPromise, AxiosResponse } from 'axios';
+import store from '../store'
+
 // 引入axios和定义在node_modules/axios/index.ts文件 里的类型声明
 
 const apiBaseUrl = process.env.NODE_ENV === 'production' ? "http://localhost:3000" : "http://localhost:3000";
@@ -21,6 +23,9 @@ class HttpRequest { // 定义一个接口请求类，用于创建一个axios请�
       // 接口请求的所有配置，都在这个config对象中，他的类型是AxiosRequestConfig，你可以看到他有哪些字段      
       // 如果你要修改接口请求配置，需要修改 axios.defaults 上的字段值      
       axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
+      if (store.state.token) {
+        config.headers.Authorization = 'Bearer' + ' ' + store.state.token
+      }
       return config
     },
       (error) => {
@@ -48,7 +53,7 @@ export interface ResponseData {
   code: number
   data?: any
   msg: string
-  token?: any
+  token?: string
 }
 
 

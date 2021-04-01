@@ -1,14 +1,31 @@
 <template>
   <div class="user-index">
-     <mavonEditor v-model="htmlContent"/>
     <a-row class="card">
       <a-col :md="6" :sm="12" :xs="24">
         <a
-          >API文档实例<i title="项目设置" class="setting"><SettingOutlined /></i
+          >API文档实例
+          <i title="项目设置" class="setting"><SettingOutlined /></i
           ><i title="这是一个私有项目" class="lock"><UnlockOutlined /></i
         ></a>
       </a-col>
-      <a-col :md="6" :sm="12" :xs="24"> <a>我的项目</a> </a-col>
+      <a-col
+        :md="6"
+        :sm="12"
+        :xs="24"
+        v-for="(item, index) in projectList"
+        :key="index"
+      >
+        <router-link
+          :to="{ name: 'documentIndex', query: { projectId: item._id } }"
+          >{{ item.name }}
+          <router-link :to="{ name: 'userIndex' }" class="setting">
+            <i title="项目设置"> <SettingOutlined /></i>
+          </router-link>
+
+          <i title="这是一个私有项目" class="lock" v-if="item.publics == true"
+            ><UnlockOutlined /></i
+        ></router-link>
+      </a-col>
 
       <a-col :md="6" :sm="12" :xs="24">
         <a
@@ -20,12 +37,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { ref, defineComponent, onMounted } from "vue";
 import {
   SettingOutlined,
   UnlockOutlined,
   PlusOutlined,
 } from "@ant-design/icons-vue";
+import { project } from "@/api/project";
 
 export default defineComponent({
   name: "userIndex",
@@ -34,10 +52,20 @@ export default defineComponent({
     UnlockOutlined,
     PlusOutlined,
   },
-  setup(){
-    const htmlContent = ref('##### 简要描述')
-    return {htmlContent}
-  }
+  setup() {
+    const projectList = ref("");
+    onMounted(() => {
+      project().then((res) => {
+        if (res.data.code === 200) {
+          projectList.value = res.data.data;
+        }
+      });
+    });
+
+    return {
+      projectList,
+    };
+  },
 });
 </script>
 
@@ -74,9 +102,12 @@ export default defineComponent({
           display: block;
           width: 30px;
           height: 30px;
+          background: #f2f5e9;
           position: absolute;
           right: 10px;
           top: 8px;
+          border: 0;
+
           span {
             position: absolute;
             right: 0;

@@ -1,6 +1,9 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 import store from '../store'
 
+
+
+
 const Index = () => import('@/views/Index.vue')
 const userIndex = () => import('@/views/user/Index.vue')
 const documentIndex = () => import('@/views/document/Index.vue')
@@ -88,18 +91,31 @@ const router = createRouter({
 
 // 路由守卫
 router.beforeEach((to, from, next) => {
-  const { isLogin } = store.state
+  let userInfo = localStorage.getItem('userInfo')
+  let isLogin = localStorage.getItem('isLogin')
+  const token = localStorage.getItem('token')
+
+  if (userInfo && isLogin) {
+    userInfo = JSON.parse(userInfo)
+    isLogin = JSON.parse(isLogin)
+  }
+
+
+
   const { requiresAuth } = to.meta
   // mate区别路由是否需要登录
-   if (requiresAuth) {
-     if(isLogin){
-       next()
-     }else{
-        next('/login')
-     }
-      } else {
-        next()
-      }
+  if (requiresAuth) {
+    if (isLogin) {
+      store.commit('setUserInfo', userInfo)
+      store.commit('setToken', token)
+      store.commit('setIsLogin', isLogin)
+      next()
+    } else {
+      next('/login')
+    }
+  } else {
+    next()
+  }
 
 })
 
