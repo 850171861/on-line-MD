@@ -9,16 +9,32 @@
           <a-tab-pane key="key1" tab="基础信息">
             <div class="input">
               <a-input v-model:value="basicsForm.name" placeholder="项目名称" />
-              <a-input v-model:value="basicsForm.description" placeholder="项目描述" />
+              <a-input
+                v-model:value="basicsForm.description"
+                placeholder="项目描述"
+              />
             </div>
             <div class="radio">
               <a-radio-group v-model:value="basicsForm.publics">
-                <a-radio :style="radioStyle" :value="basicsForm.publics == true ? true:true">公开项目</a-radio>
-                <a-radio :style="radioStyle" :value="basicsForm.publics == false ? false:false"> 私密项目 </a-radio>
+                <a-radio
+                  :style="radioStyle"
+                  :value="basicsForm.publics == true ? true : true"
+                  >公开项目</a-radio
+                >
+                <a-radio
+                  :style="radioStyle"
+                  :value="basicsForm.publics == false ? false : false"
+                >
+                  私密项目
+                </a-radio>
               </a-radio-group>
             </div>
             <div class="passwrod">
-              <a-input v-if="basicsForm.publics === false" v-model:value="basicsForm.password" placeholder="访问密码" />
+              <a-input
+                v-if="basicsForm.publics === false"
+                v-model:value="basicsForm.password"
+                placeholder="访问密码"
+              />
             </div>
             <div class="submit">
               <a-button type="primary" @click="submitForm">提交</a-button>
@@ -26,19 +42,32 @@
           </a-tab-pane>
           <a-tab-pane class="member" key="key2" tab="项目成员">
             <div class="add-member-btn">
-              <a-button type="primary" @click="showModal">添加成员</a-button>
+              <a-button type="primary" @click="addMemberModal"
+                >添加成员</a-button
+              >
               <a-modal
-                v-model:visible="visible"
+                v-model:visible="visibleAddMember"
                 width="300px"
                 title="添加成员"
                 @ok="addMember"
               >
-                <a-input v-model:value="addMemberForm.username" placeholder="请输入成员用户名" />
-                <a-radio-group v-model:value="addMemberForm.roles" >
-                  <a-radio :style="radioStyle" :value="readWrite == true ? false:true">只读</a-radio>
-                  <a-radio :style="radioStyle" :value="readWrite == true ? true:true"> 读和编写 </a-radio>
+                <a-input
+                  v-model:value="addMemberForm.username"
+                  placeholder="请输入成员用户名"
+                />
+                <a-radio-group v-model:value="addMemberForm.roles">
+                  <a-radio
+                    :style="radioStyle"
+                    :value="readWrite == true ? false : true"
+                    >只读</a-radio
+                  >
+                  <a-radio
+                    :style="radioStyle"
+                    :value="readWrite == true ? true : true"
+                  >
+                    读和编写
+                  </a-radio>
                 </a-radio-group>
-
               </a-modal>
             </div>
             <div class="table">
@@ -50,12 +79,32 @@
                   <th>权限</th>
                   <th>操作</th>
                 </tr>
-                <tr>
-                  <td><div>592313592313592313592313</div></td>
-                  <td><div>2141422222222222</div></td>
-                  <td><div>214124222222222</div></td>
-                  <td><div>214</div></td>
-                  <td><div>421</div></td>
+                <tr v-for="(item, index) in memberData" :key="index">
+                  <td>
+                    <div>{{ item.username }}</div>
+                  </td>
+                  <td>
+                    <div>{{ item.name }}</div>
+                  </td>
+                  <td>
+                    <div>{{ item.created }}</div>
+                  </td>
+                  <td>
+                    <div v-if="item.roles[0] === 'read'">只读</div>
+                    <div v-else-if="item.roles[0] === 'read-write'">读和写</div>
+                    <div v-else>root</div>
+                  </td>
+                  <td v-if="item.roles[0] !== 'create'">
+                    <a-popconfirm
+                      @confirm="deleteMember(item.id)"
+                      :title="'你确定移除用户' + item.name"
+                    >
+                      <template #icon
+                        ><question-circle-outlined style="color: red"
+                      /></template>
+                      <a href="#">删除</a>
+                    </a-popconfirm>
+                  </td>
                 </tr>
               </table>
             </div>
@@ -69,15 +118,15 @@
               class="inputTransfer"
               width="300px"
               title="项目转接"
-              @ok="addMember"
+              @ok="transferOk"
             >
               <a-input
-                v-model:value="name"
-                placeholder="请输入项目名称850171861"
+                class="username"
+                v-model:value="transferForm.username"
+                placeholder="接收者用户名"
               />
-              <a-input v-model:value="username" placeholder="接收者用户名" />
-              <a-input
-                v-model:value="password"
+              <a-input-password
+                v-model:value="transferForm.password"
                 placeholder="请输入你的登录密码"
               />
             </a-modal>
@@ -106,115 +155,211 @@
 </template>
 
 <script lang="ts">
-import { ArrowLeftOutlined } from "@ant-design/icons-vue";
-import { defineComponent, reactive, ref,UnwrapRef } from "vue";
-import { project,updateProject } from "@/api/project";
+import {
+  ArrowLeftOutlined,
+  QuestionCircleOutlined,
+} from "@ant-design/icons-vue";
+import { defineComponent, reactive, ref, UnwrapRef } from "vue";
+import {
+  project,
+  updateProject,
+  addmember,
+  getmember,
+  deletemember,
+  transferProject,
+} from "@/api/project";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
 
 interface BasicsFormInterface {
   name: string;
-  description:string;
-  publics:boolean;
+  description: string;
+  publics: boolean;
   password: string;
 }
 interface addMemberForm {
   username: string;
   roles: boolean;
 }
+
+interface MemberObj {
+  id: string;
+  username: string;
+  name: string;
+  created: string;
+  roles: [string];
+}
+
+interface transferForm {
+  username: string;
+  name?: string;
+  password: string;
+}
+
 export default defineComponent({
   components: {
     ArrowLeftOutlined,
+    QuestionCircleOutlined,
   },
   setup() {
     const route = useRoute();
-    const router = useRouter()
+    const router = useRouter();
     const goback = () => {
-      router.go(-1)
-    }
-    const projectId = route.query.projectId
+      router.go(-1);
+    };
+    const projectId = route.query.projectId;
     const basicsForm: UnwrapRef<BasicsFormInterface> = reactive({
-    name: '',
-    description:'',
-    publics:false,
-    password: '',
-  });
-   const addMemberForm: UnwrapRef<addMemberForm> = reactive({
-    username: '',
-    roles:false
-  });
+      name: "",
+      description: "",
+      publics: false,
+      password: "",
+    });
+    const addMemberForm: UnwrapRef<addMemberForm> = reactive({
+      username: "",
+      roles: false,
+    });
+
+    let memberData = ref<Array<MemberObj>>([]);
+    const readWrite = ref<boolean>(true);
     const value = ref<number>();
-    const visible = ref<boolean>(false);
+    const visibleAddMember = ref<boolean>(false);
     const visibleTransfer = ref<boolean>(false);
     const deleteTransfer = ref<boolean>(false);
-    const uuid = ref<string>('')
+    const uuid = ref<string>("");
     const onTabClick = (tabKey: string) => {
-      console.log("tab clicked : " + tabKey);
+      if (tabKey === "key2") {
+        getmember({ uuid: uuid.value }).then((res) => {
+          if (res.data.code === 200) {
+            memberData.value = res.data.data;
+          }
+        });
+      }
     };
-     const radioStyle = reactive({
-      display: 'block',
-      height: '30px',
-      lineHeight: '30px',
+    const deleteMember = (id: string) => {
+      deletemember({ id: id, uuid: uuid.value }).then((res) => {
+        if (res.data.code === 200) {
+          memberData.value = memberData.value.filter((item: any) => {
+            return item.id !== id;
+          });
+        }
+      });
+    };
+    const radioStyle = reactive({
+      display: "block",
+      height: "30px",
+      lineHeight: "30px",
     });
-    
-    const showModal = () => {
-      visible.value = true;
+
+    const addMemberModal = () => {
+      visibleAddMember.value = true;
     };
     const addMember = () => {
-      if(addMemberForm.username === ''){
-           message.error("用户名不能为空或者权限不能为空");
-           return
+      if (addMemberForm.username === "") {
+        message.error("用户名不能为空或者权限不能为空");
+        return;
       }
-      console.log(addMemberForm)
-      visible.value = false;
+      let roles;
+      if (addMemberForm.roles) {
+        roles = ["read-write"];
+      } else {
+        roles = ["read"];
+      }
+      addmember({
+        username: addMemberForm.username,
+        name: basicsForm.name,
+        description: basicsForm.description,
+        publics: basicsForm.publics,
+        password: basicsForm.password,
+        uuid: uuid.value,
+        roles: roles,
+      }).then((res) => {
+        if (res.data.code === 200) {
+          message.success("添加成员成功");
+
+          visibleAddMember.value = false;
+          const data = {
+            id: res.data.data.id,
+            username: res.data.data.username,
+            name: res.data.data.name,
+            created: res.data.data.created,
+            roles: res.data.data.roles,
+          };
+          memberData.value.unshift(data);
+        } else if (res.data.code === 501) {
+          message.error("成员已存在项目中");
+          visibleAddMember.value = false;
+        } else {
+          message.error("添加成员用户名不存在");
+        }
+      });
     };
-    const transferClick = () => {
-      visibleTransfer.value = true;
-    };
+
     const deleteClick = () => {
       deleteTransfer.value = true;
     };
 
     project({ projectId: projectId }).then((res) => {
-      if(res.data.code === 200){
-          basicsForm.name = res.data.data[0].name
-          basicsForm.description = res.data.data[0].description
-          basicsForm.publics = res.data.data[0].publics
-          basicsForm.password = res.data.data[0].password
-          uuid.value = res.data.data[0].uuid
+      if (res.data.code === 200) {
+        basicsForm.name = res.data.data[0].name;
+        basicsForm.description = res.data.data[0].description;
+        basicsForm.publics = res.data.data[0].publics;
+        basicsForm.password = res.data.data[0].password;
+        uuid.value = res.data.data[0].uuid;
       }
     });
     const submitForm = () => {
-      if(!basicsForm.publics){
-         if(basicsForm.password === ''){
+      if (!basicsForm.publics) {
+        if (basicsForm.password === "") {
           message.error("访问密码不能为空");
-          return
-         }
+          return;
+        }
       }
       updateProject({
-        uuid:uuid.value,
+        uuid: uuid.value,
         name: basicsForm.name,
         description: basicsForm.description,
         publics: basicsForm.publics,
         password: basicsForm.password,
         roles: ["create"],
-      }).then((res)=>{
-        if(res.data.code === 200){
+      }).then((res) => {
+        if (res.data.code === 200) {
           message.success("修改成功");
         }
-      })
-    }
+      });
+    };
 
-    const readWrite = ref<boolean>(true)
-
+    // 项目转接
+    const transferForm: UnwrapRef<transferForm> = reactive({
+      name: "",
+      username: "",
+      password: "",
+    });
+    const transferClick = () => {
+      visibleTransfer.value = true;
+    };
+    const transferOk = () => {
+      if (transferForm.username === "" && transferForm.password === "") {
+        message.error("接收者用户名或登录密码不能为空");
+        return;
+      } else {
+        transferProject({
+          username: transferForm.username,
+          password: transferForm.password,
+          uuid: uuid.value,
+        }).then((res) => {
+          console.log(res);
+        });
+        visibleTransfer.value = false;
+      }
+    };
 
     return {
       readWrite,
       goback,
       onTabClick,
       value,
-      visible,
-      showModal,
+      visibleAddMember,
+      addMemberModal,
       addMember,
       visibleTransfer,
       transferClick,
@@ -223,7 +368,11 @@ export default defineComponent({
       basicsForm,
       addMemberForm,
       radioStyle,
-      submitForm
+      submitForm,
+      memberData,
+      deleteMember,
+      transferOk,
+      transferForm,
     };
   },
 });
@@ -351,8 +500,8 @@ export default defineComponent({
   }
 }
 .inputTransfer {
-  input {
-    margin-top: 10px;
+  .username {
+    margin-bottom: 10px;
   }
 }
 .deleteTransfer {
