@@ -18,12 +18,12 @@
         <router-link
           :to="{ name: 'documentIndex', query: { projectId: item._id } }"
           >{{ item.name }}
-          <router-link
-            :to="{ name: 'settingProject', query: { projectId: item._id } }"
+          <a
             class="setting"
+            @click.prevent="setting(item._id,item.roles)"
           >
             <i title="项目设置"> <SettingOutlined /></i>
-          </router-link>
+          </a>
 
           <i title="这是一个私有项目" class="lock" v-if="item.publics == false"
             ><UnlockOutlined /></i
@@ -47,6 +47,8 @@ import {
   PlusOutlined,
 } from "@ant-design/icons-vue";
 import { project } from "@/api/project";
+import { useRouter } from 'vue-router'
+import { message } from "ant-design-vue";
 
 export default defineComponent({
   name: "userIndex",
@@ -56,6 +58,7 @@ export default defineComponent({
     PlusOutlined,
   },
   setup() {
+    const router =  useRouter()
     const projectList = ref("");
     onMounted(() => {
       project({}).then((res) => {
@@ -65,8 +68,17 @@ export default defineComponent({
       });
     });
 
+    const setting = (_id:string,roles:any) => {
+       if(roles[0] !== 'create'){
+         message.success('你没有该项目权限')
+         return
+       }
+       router.push({name:'settingProject', query:{projectId:_id}})
+    }
+
     return {
       projectList,
+      setting
     };
   },
 });

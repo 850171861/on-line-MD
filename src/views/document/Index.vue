@@ -118,7 +118,6 @@ export default defineComponent({
     return {
       selectedKeys2: ref<string[]>(["1"]),
       openKeys: ref<string[]>(["sub1"]),
-
     };
   },
 });

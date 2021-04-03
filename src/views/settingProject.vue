@@ -136,14 +136,15 @@
               class="deleteTransfer"
               width="300px"
               title="删除项目"
-              @ok="addMember"
+              @ok="deleteOk"
             >
+             <p class="deletetTips">删除后你的项目成员也会被删除哦，或者你可以选择转让当前项目</p>
               <a-input
-                v-model:value="name"
-                placeholder="请输入项目名称850171861"
+                v-model:value="deleteForm.name"
+                :placeholder="'请输入当前项目名称'+basicsForm.name+'确认'"
               />
               <a-input
-                v-model:value="password"
+                v-model:value="deleteForm.password"
                 placeholder="请输入你的登录密码"
               />
             </a-modal>
@@ -167,6 +168,7 @@ import {
   getmember,
   deletemember,
   transferProject,
+  deleteProject
 } from "@/api/project";
 import { useRoute, useRouter } from "vue-router";
 import { message } from "ant-design-vue";
@@ -192,9 +194,14 @@ interface MemberObj {
 
 interface transferForm {
   username: string;
-  name?: string;
   password: string;
 }
+
+interface deleteForm {
+  name:string;
+  password:string;
+}
+
 
 export default defineComponent({
   components: {
@@ -294,9 +301,7 @@ export default defineComponent({
       });
     };
 
-    const deleteClick = () => {
-      deleteTransfer.value = true;
-    };
+ 
 
     project({ projectId: projectId }).then((res) => {
       if (res.data.code === 200) {
@@ -347,11 +352,41 @@ export default defineComponent({
           password: transferForm.password,
           uuid: uuid.value,
         }).then((res) => {
-          console.log(res);
+          if(res.data.code !== 200){
+            message.error(res.data.msg)
+          }else{
+            message.success('转让成功')
+            router.push({name:'userIndex'})
+            visibleTransfer.value = false;
+          }
         });
-        visibleTransfer.value = false;
       }
     };
+    // 删除项目
+     const deleteForm: UnwrapRef<deleteForm> = reactive({
+      name: "",
+      password: "",
+    });
+    const deleteClick = () => {
+      deleteTransfer.value = true;
+    };
+    const deleteOk = () => {
+      if(deleteForm.name === '' || deleteForm.password === ''){
+        message.error('确认项目名称或密码不能为空')
+        return
+      }else{
+        deleteProject({name:deleteForm.name,password:deleteForm.password,uuid:uuid.value}).then(res=>{
+          if(res.data.code !== 200){
+            message.error(res.data.msg)
+          }else{
+            message.success('删除成功')
+            deleteTransfer.value = false;
+            router.push({name:'userIndex'})
+
+          }
+        })
+      }
+    }
 
     return {
       readWrite,
@@ -373,6 +408,8 @@ export default defineComponent({
       deleteMember,
       transferOk,
       transferForm,
+      deleteForm,
+      deleteOk
     };
   },
 });
@@ -508,5 +545,12 @@ export default defineComponent({
   input {
     margin-top: 10px;
   }
+}
+.deletetTips{
+  background-color: #fef0f0;
+  border-color: #fde2e2;
+  color: #f56c6c;
+  padding: 4px 10px;
+  border-radius: 10px;
 }
 </style>

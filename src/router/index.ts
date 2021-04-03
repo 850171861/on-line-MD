@@ -11,6 +11,7 @@ const documentCreate = () => import('@/views/document/Create.vue')
 const documentUpdate = () => import('@/views/document/Update.vue')
 const createProject = () => import('@/views/createProject.vue')
 const settingProject = () => import('@/views/settingProject.vue')
+const directory = () => import('@/views/directory.vue')
 const userRegister = () => import('@/views/user/Register.vue')
 const Login = () => import('@/views/user/Login.vue')
 const ResetPassword = () => import('@/views/user/ResetPassword.vue')
@@ -64,6 +65,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/settingProject',
     name: 'settingProject',
     component: settingProject,
+    meta: {
+      requiresAuth: true
+    },
+  },
+  {
+    path: '/directory',
+    name: 'directory',
+    component:directory,
     meta: {
       requiresAuth: true
     },

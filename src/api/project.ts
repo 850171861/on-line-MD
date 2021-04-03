@@ -41,6 +41,12 @@ interface transferProject {
   uuid: string
 }
 
+interface deleteProject {
+  name: string;
+  password: string;
+  uuid: string;
+}
+
 
 export const createProject = (data: CreateAndUpdateProject): AxiosPromise<ResponseData> => {
   return axios.request({
@@ -94,6 +100,14 @@ export const deletemember = (data: deleteMember): AxiosPromise<ResponseData> => 
 export const transferProject = (data: transferProject): AxiosPromise<ResponseData> => {
   return axios.request({
     url: '/project/transferProject',
+    method: 'POST',
+    data
+  })
+}
+
+export const deleteProject = (data: deleteProject): AxiosPromise<ResponseData> => {
+  return axios.request({
+    url: '/project/delete',
     method: 'POST',
     data
   })
