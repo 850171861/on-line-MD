@@ -96,7 +96,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .cantainer {
   background: #111111;
   height: 100px;

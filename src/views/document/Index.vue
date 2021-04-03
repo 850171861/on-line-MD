@@ -74,6 +74,9 @@
                   <a-menu-item>
                     <a href="javascript:;">返回</a>
                   </a-menu-item>
+                   <a-menu-item>
+                    <router-link :to="{name:'directory',query:{projectId:projectId}}">新建目录</router-link>
+                  </a-menu-item>
                   <a-menu-item>
                     <a href="javascript:;">新建页面</a>
                   </a-menu-item>
@@ -105,6 +108,7 @@
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons-vue";
 import { defineComponent, ref } from "vue";
 import { MenuOutlined } from "@ant-design/icons-vue";
+import { useRoute } from 'vue-router'
 export default defineComponent({
   name:"doucmentIndex",
   components: {
@@ -113,16 +117,16 @@ export default defineComponent({
     FolderOpenOutlined,
   },
   setup() {
-   
+    const route = useRoute()
+    const projectId = route.query.projectId
 
     return {
-      selectedKeys2: ref<string[]>(["1"]),
-      openKeys: ref<string[]>(["sub1"]),
+      projectId
     };
   },
 });
 </script>
-<style>
+<style scoped>
 #components-layout-demo-top-side .logo {
   float: left;
   width: 120px;
