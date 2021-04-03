@@ -19,9 +19,9 @@
             </a-modal>
       </div>
       <div class="directory-list" v-for="(item,index) in directoryData" :key="index">
-      <div class="name">{{item.directory.name}}</div>
+      <div class="name" v-if="!item.page">{{item.directory.name}}</div>
      
-      <div class="crud">
+      <div class="crud"  v-if="!item.page">
         <ul>
           <li><a href="javascript:;" @click="updateDirectoryClick(item.directory.id)"><EditOutlined /></a>
           </li>

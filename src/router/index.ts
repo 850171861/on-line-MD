@@ -109,15 +109,13 @@ router.beforeEach((to, from, next) => {
     isLogin = JSON.parse(isLogin)
   }
 
-
-
+      store.commit('setUserInfo', userInfo)
+      store.commit('setToken', token)
+      store.commit('setIsLogin', isLogin)
   const { requiresAuth } = to.meta
   // mate区别路由是否需要登录
   if (requiresAuth) {
     if (isLogin) {
-      store.commit('setUserInfo', userInfo)
-      store.commit('setToken', token)
-      store.commit('setIsLogin', isLogin)
       next()
     } else {
       next('/login')

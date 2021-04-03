@@ -15,48 +15,23 @@
             v-model:openKeys="openKeys"
             style="height: 100%;"
           >
-            <a-menu-item key="0">
-              <video-camera-outlined />
-              <span class="nav-text">
+            <div class="flie" v-for="(item,index) in sideDirectoryData" :key="index">
+                <span class="nav-text" v-if="item.directory.page">
                 <FileOutlined />
-                nav 2</span
+                {{item.directory.name}}</span
               >
-            </a-menu-item>
-            <a-sub-menu key="sub1">
+              </div>
+            <a-sub-menu v-for="(item,index) in sideDirectoryData" :key="index">
               <template #title>
-                <span>
+                <span v-if="!item.directory.page">
                   <FolderOpenOutlined />
-                  subnav 1
+                  {{item.directory.name}}
                 </span>
               </template>
               <a-menu-item key="1">option1</a-menu-item>
               <a-menu-item key="2">option2</a-menu-item>
               <a-menu-item key="3">option3</a-menu-item>
               <a-menu-item key="4">option4</a-menu-item>
-            </a-sub-menu>
-            <a-sub-menu key="sub2">
-              <template #title>
-                <span>
-                  <FolderOpenOutlined />
-                  subnav 2
-                </span>
-              </template>
-              <a-menu-item key="5">option5</a-menu-item>
-              <a-menu-item key="6">option6</a-menu-item>
-              <a-menu-item key="7">option7</a-menu-item>
-              <a-menu-item key="8">option8</a-menu-item>
-            </a-sub-menu>
-            <a-sub-menu key="sub3">
-              <template #title>
-                <span>
-                  <FolderOpenOutlined />
-                  subnav 3
-                </span>
-              </template>
-              <a-menu-item key="9">option9</a-menu-item>
-              <a-menu-item key="10">option10</a-menu-item>
-              <a-menu-item key="11">option11</a-menu-item>
-              <a-menu-item key="12">option12</a-menu-item>
             </a-sub-menu>
           </a-menu>
         </a-layout-sider>
@@ -78,7 +53,7 @@
                     <router-link :to="{name:'directory',query:{projectId:projectId}}">新建目录</router-link>
                   </a-menu-item>
                   <a-menu-item>
-                    <a href="javascript:;">新建页面</a>
+                    <router-link :to="{name:'documentCreate',query:{projectId:projectId}}" >新建页面</router-link>
                   </a-menu-item>
                   <a-menu-item>
                     <a href="javascript:;">编辑当前页面</a>
@@ -106,9 +81,10 @@
 </template>
 <script lang="ts">
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons-vue";
-import { defineComponent, ref } from "vue";
+import { defineComponent,onMounted, ref } from "vue";
 import { MenuOutlined } from "@ant-design/icons-vue";
 import { useRoute } from 'vue-router'
+import { getDirectory } from '@/api/directory'
 export default defineComponent({
   name:"doucmentIndex",
   components: {
@@ -119,9 +95,21 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const projectId = route.query.projectId
-
+    const sideDirectoryData = ref([])
+    // 获取侧边栏目录
+    const getSideDirectory = () => {
+         getDirectory({projectId:route.query.projectId}).then(res => {
+        if(res.data.code === 200){
+          sideDirectoryData.value = res.data.data
+        }
+      })
+    }
+    onMounted(() => {
+      getSideDirectory()
+    })
     return {
-      projectId
+      projectId,
+      sideDirectoryData
     };
   },
 });
@@ -190,5 +178,19 @@ export default defineComponent({
 .ant-menu-light:hover{
   border:1px solid #FFFFFF;
 }
+
+.flie{
+  text-align: left;
+  overflow: hidden;
+  font-size: 14px;
+}
+.flie  .nav-text{
+  display: block;
+  height: 40px;
+  margin: 4px 0;
+  padding-left: 24px;
+  line-height: 40px;
+  padding-right: 34px;
+  }
 
 </style>

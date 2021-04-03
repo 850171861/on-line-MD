@@ -60,9 +60,10 @@ export default defineComponent({
     const store = useStore<HeaderInterface>();
 
     const router = useRouter();
-    const userInfo = computed(() => store.state.userInfo);
 
+    const userInfo = computed(() => store.state.userInfo);
     const isLogin = computed(() => store.state.isLogin);
+    console.log(isLogin)
     const logout = () => {
       localStorage.clear();
       store.commit("setToken", "");

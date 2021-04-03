@@ -12,13 +12,14 @@
           ref="select"
           @change="handleChange"
         >
-          <a-select-option value="jack">Jack</a-select-option>
-          <a-select-option value="lucy">Lucy</a-select-option>
-          <a-select-option value="Yiminghe">yiminghe</a-select-option>
+          <a-select-option :value="item.directory.id" v-for="(item,index) in directoryData" :key="index">
+            <span v-if="!item.page">{{item.directory.name}}</span>
+            </a-select-option>
+          <a-select-option value="">无</a-select-option>
         </a-select>
       </div>
       <div class="right">
-        <a-button type="primary">保存</a-button>
+        <a-button type="primary" @click="save">保存</a-button>
         <a-button>返回</a-button>
       </div>
     </div>
@@ -26,25 +27,37 @@
       <a-button @click="apiTemplate">API接口模板</a-button>
       <a-button @click="dataTemplate">数据表模板</a-button>
     </div>
-    <markdown :context="context" />
+    <div id="vditor"></div>
   </div>
 </template>
-
 <script lang="ts">
-import markdown from "@/components/MarkDonw.vue";
-import { defineComponent, ref } from "vue";
+import { ref, onMounted, defineComponent } from "vue";
+import Vditor from "vditor";
+import "vditor/dist/index.css";
+import { useRoute, useRouter } from 'vue-router'
+import { getDirectory } from '@/api/directory'
+import { createDirectory } from '@/api/document'
+import { message } from "ant-design-vue";
 
 export default defineComponent({
   name: "doucmentCreate",
-  components: {
-    markdown,
-  },
   setup() {
-    const context = ref("");
+    const router = useRouter()
+    const projectId = useRoute().query.projectId
+    const title = ref<string>("");
+    const seleteDirectory = ref<string>("");
+    const contentEditor = ref();
     const apiTemplate = () => {
-      context.value =
-        context.value +
-        "\n" +
+      contentEditor.value = new Vditor("vditor", {
+        height: "auto",
+        mode: "sv",
+        minHeight: 500,
+        width: "auto",
+        toolbarConfig: {
+          pin: false,
+        },
+        after: () => {
+          let value = "\n" +
         "##### 简要描述" +
         "\n" +
         "- 用户注册接口" +
@@ -87,11 +100,21 @@ export default defineComponent({
         "##### 备注 " +
         "\n" +
         "- 更多返回错误代码请看首页的错误代码描述";
+          contentEditor.value.setValue(value);
+        },
+      });
     };
     const dataTemplate = () => {
-      context.value =
-        context.value +
-        "\n" +
+       contentEditor.value = new Vditor("vditor", {
+        height: "auto",
+        mode: "sv",
+        minHeight: 500,
+        width: "auto",
+        toolbarConfig: {
+          pin: false,
+        },
+        after: () => {
+          let value = "\n" +
         "-  用户表，储存用户信息" +
         "\n" +
         "\n" +
@@ -110,18 +133,63 @@ export default defineComponent({
         "|reg_time |int(11)     |否   | 0  |   注册时间  |" +
         "\n" +
         "- 备注：无";
+          contentEditor.value.setValue(value);
+       }
+       })
     };
-    const title = ref<string>("");
     const handleChange = (value: string) => {
-      console.log(`selected ${value}`);
+      seleteDirectory.value = `${value}`
     };
+    
+   
+    // 获取目录
+    const directoryData = ref([])
+    const directory = () => {
+      getDirectory({projectId:projectId}).then(res => {
+        if(res.data.code === 200){
+            directoryData.value = res.data.data
+        }
+      })
+    }
+    onMounted(() => {
+       directory()
+       contentEditor.value = new Vditor("vditor", {
+        height: "auto",
+        mode: "sv",
+        minHeight: 500,
+        width: "auto",
+        toolbarConfig: {
+          pin: false,
+        },
+        after: () => {
+          contentEditor.value.setValue("体验一下呗");
+        },
+      });
+    })
+
+    // 保存
+    const save = () =>{
+      if(title.value ==='' || contentEditor.value.vditor.element.innerText === ''){
+        message.error('标题或内容不能为空')
+        return
+      }
+      createDirectory({projectId:projectId,directoryId:seleteDirectory.value,title:title.value,content:contentEditor.value.vditor.sv.element.innerText})
+      .then(res => {
+        if(res.data.code === 200){
+          message.success('保存成功')
+          router.push({name:'documentIndex', query:{projectId:projectId}})
+        }
+      })
+    }
+  
 
     return {
-      context,
       apiTemplate,
       dataTemplate,
       title,
       handleChange,
+      directoryData,
+      save
     };
   },
 });
@@ -187,5 +255,11 @@ th {
   min-width: 100px;
   color: #fff;
   background: #4ca3fd;
+}
+
+.ant-select-item{
+  min-height: auto;
+  height: auto;
+  padding: 0;
 }
 </style>

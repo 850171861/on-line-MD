@@ -20,6 +20,8 @@ interface DeleteDirectory {
    directory_id:string;
 }
 
+
+
 export const createDirectory = (data: CreateDirectory): AxiosPromise<ResponseData> => {
     return axios.request({
         url: '/directory/create',
@@ -45,9 +47,11 @@ export const updateDirectory = (data: UpdateDirectory): AxiosPromise<ResponseDat
 
 export const deleteDirectory = (data: DeleteDirectory): AxiosPromise<ResponseData> => {
     return axios.request({
-        url: '/directory/delete',
+        url: '/directory/get',
         data: data,
         method: 'POST'
     })
 }
+
+
 
