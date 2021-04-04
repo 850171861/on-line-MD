@@ -16,7 +16,7 @@
         :key="index"
       >
         <router-link
-          :to="{ name: 'documentIndex', query: { projectId: item._id } }"
+          :to="{ name: 'documentIndex', query: { projectId: item.uuid } }"
           >{{ item.name }}
           <a
             class="setting"
