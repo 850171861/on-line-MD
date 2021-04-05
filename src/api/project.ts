@@ -13,6 +13,7 @@ interface CreateAndUpdateProject {
 
 interface ProjectInterface {
   projectId?: any
+  projectUUID?: any
 }
 
 interface AddMember {
@@ -45,6 +46,11 @@ interface deleteProject {
   name: string;
   password: string;
   uuid: string;
+}
+
+interface ProjectPassword {
+  password:any
+  projectId:any
 }
 
 
@@ -112,4 +118,14 @@ export const deleteProject = (data: deleteProject): AxiosPromise<ResponseData> =
     data
   })
 }
+
+export const projectPassword = (data: ProjectPassword): AxiosPromise<ResponseData> => {
+  return axios.request({
+    url: '/project/password',
+    method: 'POST',
+    data
+  })
+}
+
+
 

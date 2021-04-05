@@ -45,10 +45,11 @@
               <template #overlay>
                 <a-menu>
                   <a-menu-item>
-                    <a href="javascript:;">返回</a>
+                    <a  @click="goback">返回</a>
                   </a-menu-item>
-                   <a-menu-item>
-                    <router-link :to="{name:'directory',query:{projectId:projectId}}">新建目录</router-link>
+                  <div v-if="rolesData === 'create' || rolesData === 'read-write'">
+                    <a-menu-item>
+                    <router-link  :to="{name:'directory',query:{projectId:projectId}}">新建目录</router-link>
                   </a-menu-item>
                   <a-menu-item>
                     <router-link :to="{name:'documentCreate',query:{projectId:projectId}}" >新建页面</router-link>
@@ -59,6 +60,21 @@
                   <a-menu-item>
                     <a href="javascript:;" @click="deleteMdDocument">删除当前页面</a>
                   </a-menu-item>
+                  </div>
+                   <div v-else>
+                      <a-menu-item>
+                    <a href="javascript:;">无权限新建目录</a>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <a href="javascript:;">无权限新建页面</a>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <a href="javascript:;">无权限编辑当前页面</a>
+                  </a-menu-item>
+                  <a-menu-item>
+                    <a href="javascript:;">无权限删除当前页面</a>
+                  </a-menu-item>
+                   </div>
                 </a-menu>
               </template>
             </a-dropdown>
@@ -80,12 +96,15 @@
 import Vditor from "vditor";
 import "vditor/dist/index.css";
 import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons-vue";
-import { defineComponent,onMounted, ref } from "vue";
+import { defineComponent,onMounted, ref,computed } from "vue";
 import { MenuOutlined } from "@ant-design/icons-vue";
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getDirectory } from '@/api/directory'
 import { getDocument, deleteDocument } from '@/api/document'
 import { message } from "ant-design-vue";
+import { project } from '@/api/project'
+import { useStore } from "vuex";
+
 export default defineComponent({
   name:"doucmentIndex",
   components: {
@@ -95,12 +114,13 @@ export default defineComponent({
   },
   setup() {
     const route = useRoute()
+    const router = useRouter()
     const projectId = route.query.projectId
     const directoryData = ref([])
     const pageData = ref([])
     // 获取侧边栏目录
     const getSideDirectory = () => {
-         getDirectory({projectId:route.query.projectId}).then(res => {
+         getDirectory({projectId:projectId}).then(res => {
         if(res.data.code === 200){
           pageData.value = res.data.data.filter((item:any) => {
             return item.page === true
@@ -165,10 +185,29 @@ export default defineComponent({
         }
       })
     }
-    
+    // 项目权限
+    const store = useStore();
+    const projectRoles = computed(() => store.state.project);
+    const rolesData = ref('')
+    const roles = () => {
+      project({projectUUID:projectId}).then((res) => {
+        if(res.data.code === 200){
+          if(res.data.data.password){
+            if(!projectRoles.value){
+            router.push({name:'ProjectPassword', query:{projectId:projectId}})
+            }
+          }
+        }
+      })
+    }
+    // 返回
+    const goback = () => {
+      router.go(-1)
+    }
 
     onMounted(() => {
       getSideDirectory()
+      roles()
     })
     return {
       projectId,
@@ -180,7 +219,9 @@ export default defineComponent({
       deleteMdDocument,
       getDirectoryId,
       doucmentId,
-      directoryid
+      directoryid,
+      rolesData,
+      goback
     };
   },
 });

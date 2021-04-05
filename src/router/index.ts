@@ -15,7 +15,7 @@ const directory = () => import('@/views/directory.vue')
 const userRegister = () => import('@/views/user/Register.vue')
 const Login = () => import('@/views/user/Login.vue')
 const ResetPassword = () => import('@/views/user/ResetPassword.vue')
-
+const ProjectPassword = () => import('@/views/projectPassword.vue')
 
 
 const routes: Array<RouteRecordRaw> = [
@@ -91,7 +91,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/ResetPassword',
     name: 'ResetPassword',
     component: ResetPassword
+  },
+  {
+    path: '/ProjectPassword',
+    name: 'ProjectPassword',
+    component: ProjectPassword
   }
+
+  
 ]
 const router = createRouter({
   history: createWebHashHistory(),
@@ -112,15 +119,21 @@ router.beforeEach((to, from, next) => {
       store.commit('setUserInfo', userInfo)
       store.commit('setToken', token)
       store.commit('setIsLogin', isLogin)
+
   const { requiresAuth } = to.meta
   // mate区别路由是否需要登录
   if (requiresAuth) {
     if (isLogin) {
-      next()
+        next()
     } else {
       next('/login')
     }
   } else {
+    if(to.path === '/login'){
+       if (isLogin) {
+        next('/userIndex')
+        } 
+      }
     next()
   }
 

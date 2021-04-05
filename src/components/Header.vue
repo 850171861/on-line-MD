@@ -26,7 +26,7 @@
             <template #overlay>
               <a-menu>
                 <a-menu-item>
-                  <a href="javascript:;">个人中心</a>
+                  <router-link to="/userIndex">我的项目</router-link>
                 </a-menu-item>
                 <a-menu-item>
                   <a href="javascript:;" @click="logout">退出登录</a>

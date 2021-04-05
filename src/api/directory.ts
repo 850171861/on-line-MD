@@ -47,7 +47,7 @@ export const updateDirectory = (data: UpdateDirectory): AxiosPromise<ResponseDat
 
 export const deleteDirectory = (data: DeleteDirectory): AxiosPromise<ResponseData> => {
     return axios.request({
-        url: '/directory/get',
+        url: '/directory/delete',
         data: data,
         method: 'POST'
     })

@@ -2,12 +2,16 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
+    project:false,
     isLogin: false,
     userInfo: {},
     token: ''
   },
   mutations: {
-
+    // 项目状态密码
+    setProject (state, value) {
+      state.project = value
+    },
     // 登录状态
     setIsLogin (state, value) {
       state.isLogin = value
