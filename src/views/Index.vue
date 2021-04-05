@@ -25,7 +25,7 @@
           </dl>
         </div>
 
-        <a-button type="large">查看示例</a-button>
+        <a-button type="large"><router-link to="/demoIndex">查看示例</router-link></a-button>
       </a-col>
     </a-row>
   </div>

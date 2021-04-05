@@ -2,11 +2,11 @@
   <div class="user-index">
     <a-row class="card">
       <a-col :md="6" :sm="12" :xs="24">
-        <a
-          >API文档实例
+        <router-link to="/demoIndex"
+          >API文档示例
           <i title="项目设置" class="setting"><SettingOutlined /></i
           ><i title="这是一个私有项目" class="lock"><UnlockOutlined /></i
-        ></a>
+        ></router-link>
       </a-col>
       <a-col
         :md="6"

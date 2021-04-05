@@ -10,11 +10,7 @@
           style="width: 200px"
           @focus="focus"
           ref="select"
-          @change="handleChange"
         >
-          <a-select-option :value="item.directory.id" v-for="(item,index) in directoryData" :key="index">
-            <span v-if="!item.page">{{item.directory.name}}</span>
-            </a-select-option>
           <a-select-option value="">无</a-select-option>
         </a-select>
       </div>
@@ -34,18 +30,14 @@
 import { ref, onMounted, defineComponent } from "vue";
 import Vditor from "vditor";
 import "vditor/dist/index.css";
-import { useRoute, useRouter } from 'vue-router'
-import { getDirectory } from '@/api/directory'
-import { createDirectory } from '@/api/document'
+import { useRouter } from 'vue-router'
 import { message } from "ant-design-vue";
 
 export default defineComponent({
   name: "doucmentCreate",
   setup() {
     const router = useRouter()
-    const projectId = useRoute().query.projectId
     const title = ref<string>("");
-    const seleteDirectory = ref<string>("");
     const contentEditor = ref();
     const apiTemplate = () => {
       contentEditor.value = new Vditor("vditor", {
@@ -137,22 +129,12 @@ export default defineComponent({
        }
        })
     };
-    const handleChange = (value: string) => {
-      seleteDirectory.value = `${value}`
-    };
+
     
    
-    // 获取目录
-    const directoryData = ref([])
-    const directory = () => {
-      getDirectory({projectId:projectId}).then(res => {
-        if(res.data.code === 200){
-            directoryData.value = res.data.data
-        }
-      })
-    }
+
+  
     onMounted(() => {
-       directory()
        contentEditor.value = new Vditor("vditor", {
         height: "auto",
         mode: "sv",
@@ -169,30 +151,18 @@ export default defineComponent({
 
     // 保存
     const save = () =>{
-      if(title.value ==='' || contentEditor.value.vditor.element.innerText === ''){
-        message.error('标题或内容不能为空')
+        message.error('示例无法保存')
         return
-      }
-      createDirectory({projectId:projectId,directoryId:seleteDirectory.value,title:title.value,content:contentEditor.value.vditor.sv.element.innerText})
-      .then(res => {
-        if(res.data.code === 200){
-          message.success('保存成功')
-          router.push({name:'documentIndex', query:{projectId:projectId}})
-        }
-      })
     }
-
+     // 返回
     const goback = () => {
       router.go(-1)
     }
-  
 
     return {
       apiTemplate,
       dataTemplate,
       title,
-      handleChange,
-      directoryData,
       save,
       goback
     };
@@ -252,9 +222,7 @@ export default defineComponent({
   text-align: left;
   background-color: #fff;
 }
-table{
-  min-width: 100%;
-}
+
 tr {
   min-width: 100px;
 }

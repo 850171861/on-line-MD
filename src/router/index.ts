@@ -16,7 +16,8 @@ const userRegister = () => import('@/views/user/Register.vue')
 const Login = () => import('@/views/user/Login.vue')
 const ResetPassword = () => import('@/views/user/ResetPassword.vue')
 const ProjectPassword = () => import('@/views/projectPassword.vue')
-
+const demoIndex = () => import('@/views/demo/Index.vue')
+const demoCreate = () => import('@/views/demo/Create.vue')
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -96,7 +97,18 @@ const routes: Array<RouteRecordRaw> = [
     path: '/ProjectPassword',
     name: 'ProjectPassword',
     component: ProjectPassword
+  },
+  {
+    path: '/demoIndex',
+    name: 'demoIndex',
+    component: demoIndex
+  },
+  {
+    path: '/demoCreate',
+    name: 'demoCreate',
+    component: demoCreate
   }
+
 
   
 ]

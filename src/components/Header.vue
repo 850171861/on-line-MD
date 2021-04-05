@@ -2,8 +2,10 @@
   <div class="cantainer">
     <a-row class="header-top">
       <a-col :md="12" :xs="24" class="header-logo">
-        <span><img src="../assets/Markdown.png" width="48" /></span>
-        <span class="text">on line MD</span>
+       <router-link to="/">
+          <span><img src="../assets/Markdown.png" width="48" /></span>
+           <span class="text">on line MD</span>
+       </router-link>
       </a-col>
       <a-col :md="12" :xs="24" class="header-login" offset="-2">
         <ul v-if="!isLogin">

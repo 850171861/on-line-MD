@@ -47,6 +47,9 @@
                   <a-menu-item>
                     <a  @click="goback">返回</a>
                   </a-menu-item>
+                  <a-menu-item>
+                    <a  @click="share">分享</a>
+                  </a-menu-item>
                   <div v-if="rolesData === 'create' || rolesData === 'read-write'">
                     <a-menu-item>
                     <router-link  :to="{name:'directory',query:{projectId:projectId}}">新建目录</router-link>
@@ -101,7 +104,7 @@ import { MenuOutlined } from "@ant-design/icons-vue";
 import { useRoute, useRouter } from 'vue-router'
 import { getDirectory } from '@/api/directory'
 import { getDocument, deleteDocument } from '@/api/document'
-import { message } from "ant-design-vue";
+import { message, Modal } from "ant-design-vue";
 import { project } from '@/api/project'
 import { useStore } from "vuex";
 
@@ -192,6 +195,7 @@ export default defineComponent({
     const roles = () => {
       project({projectUUID:projectId}).then((res) => {
         if(res.data.code === 200){
+          rolesData.value = res.data.data[0].roles[0]
           if(res.data.data.password){
             if(!projectRoles.value){
             router.push({name:'ProjectPassword', query:{projectId:projectId}})
@@ -204,7 +208,25 @@ export default defineComponent({
     const goback = () => {
       router.go(-1)
     }
-
+    // 分享
+    const share = () => {
+      console.log(route.path)
+      console.log(route.query)
+      let secondsToGo = 10;
+      const modal = Modal.success({
+        title: `项目地址:http//wudongming.com/md/${route.path}/${route.query.projectId}`,
+      })
+    const interval = setInterval(() => {
+        secondsToGo -= 1;
+        modal.update({
+          content: `${secondsToGo}秒后自动关闭`,
+        });
+      }, 1000);
+      setTimeout(() => {
+        clearInterval(interval);
+        modal.destroy();
+      }, secondsToGo * 1000);
+    };
     onMounted(() => {
       getSideDirectory()
       roles()
@@ -221,7 +243,8 @@ export default defineComponent({
       doucmentId,
       directoryid,
       rolesData,
-      goback
+      goback,
+      share
     };
   },
 });
@@ -316,6 +339,9 @@ export default defineComponent({
   text-align: left;
   background-color: #fff;
   border:0
+}
+table{
+  min-width: 100%;
 }
 tr {
   min-width: 100px;
