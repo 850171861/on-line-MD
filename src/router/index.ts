@@ -7,8 +7,8 @@ import store from '../store'
 const Index = () => import('@/views/Index.vue')
 const userIndex = () => import('@/views/user/Index.vue')
 const documentIndex = () => import('@/views/document/Index.vue')
-const documentCreate = () => import('@/views/document/Create.vue')
-const documentUpdate = () => import('@/views/document/Update.vue')
+const documentCreate = () => import('@/views/document/create.vue')
+const documentUpdate = () => import('@/views/document/update.vue')
 const createProject = () => import('@/views/createProject.vue')
 const settingProject = () => import('@/views/settingProject.vue')
 const directory = () => import('@/views/directory.vue')
@@ -73,7 +73,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/directory',
     name: 'directory',
-    component:directory,
+    component: directory,
     meta: {
       requiresAuth: true
     },
@@ -110,7 +110,7 @@ const routes: Array<RouteRecordRaw> = [
   }
 
 
-  
+
 ]
 const router = createRouter({
   history: createWebHashHistory(),
@@ -128,24 +128,24 @@ router.beforeEach((to, from, next) => {
     isLogin = JSON.parse(isLogin)
   }
 
-      store.commit('setUserInfo', userInfo)
-      store.commit('setToken', token)
-      store.commit('setIsLogin', isLogin)
+  store.commit('setUserInfo', userInfo)
+  store.commit('setToken', token)
+  store.commit('setIsLogin', isLogin)
 
   const { requiresAuth } = to.meta
   // mate区别路由是否需要登录
   if (requiresAuth) {
     if (isLogin) {
-        next()
+      next()
     } else {
       next('/login')
     }
   } else {
-    if(to.path === '/login'){
-       if (isLogin) {
+    if (to.path === '/login') {
+      if (isLogin) {
         next('/userIndex')
-        } 
       }
+    }
     next()
   }
 

@@ -3,7 +3,7 @@ import store from '../store'
 
 // 引入axios和定义在node_modules/axios/index.ts文件 里的类型声明
 
-const apiBaseUrl = process.env.NODE_ENV === 'production' ? "http://localhost:3000" : "http://localhost:3000";
+const apiBaseUrl = process.env.NODE_ENV === 'production' ? "http://www.wudongming.com/md" : "http://localhost:3000";
 
 class HttpRequest { // 定义一个接口请求类，用于创建一个axios请求实例  
   constructor(public baseUrl: string = apiBaseUrl) { // 这个类接收一个字符串参数，是接口请求的基本路径    
